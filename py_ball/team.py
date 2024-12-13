@@ -10,7 +10,7 @@ enables API calls for team-related
 endpoints
 """
 
-from .utils import api_call, parse_api_call
+from .utils import api_call, parse_api_call, get_season_year
 
 class Team:
     """ The Team class contains all resources needed
@@ -49,6 +49,7 @@ class Team:
         type, shot clock time, number of tribbles, defender proximity, and \
         length of touch.
         - **teamgamelog**: Game log statistics for a given year.
+        - **teamgamelogs**: Game log statistics for a given year.
         - **teaminfocommon**: Team information for a given year.
         - **teamplayerdashboard**: Player traditional and rank statistics \
         for a given team.
@@ -60,7 +61,9 @@ class Team:
         broken down by several shooting related splits (shot distance and \
         area)
         - **teamyearbyyearstats**: Team statistics and performance broken \
-        down by year.
+        down by year
+        - **teamestimatedmetrics**: Estimated player statistics for a \
+        given year
 
     The Team class has the following required parameters:
 
@@ -212,6 +215,20 @@ class Team:
             lineup for the **leaguedashlineups** endpoint. The minimum value \
             is '2' and the maximum value is '5'.
 
+        @param **po_round** (*str*): PORound in the API. 1, 2, 3, or 4 \
+            corresponding to the deired playoff round
+
+        @param **shot_clock_range** (*str*): ShotClockRange in the API \
+            Accepts one of the following strings for windows of the shot \
+            clock:
+
+                - "24-22"
+                - "22-18": very early
+                - "18-15": early
+                - "15-7": average
+                - "7-4": late
+                - "4-0": very late
+
     Attributes:
 
         **api_resp** (*dict*): JSON object of the API response. The API \
@@ -235,11 +252,12 @@ class Team:
                  vs_conference='', last_n_games='0',
                  team_id='1610612747', location='', outcome='',
                  date_from='', date_to='', opp_team_id='0',
-                 season='2017-18', vs_division='',
+                 season=get_season_year("00"), vs_division='',
                  game_segment='', month='0',
                  season_type='Regular Season', season_segment='',
                  vs_player_id='201939',
-                 game_id='0011800079', group_quantity='5'):
+                 game_id='0011800079', group_quantity='5',
+                 po_round='', shot_clock_range=''):
 
         # Controlling the parameters depending on the endpoint
         if endpoint not in ['teamgamelog', 'teaminfocommon',
@@ -264,8 +282,10 @@ class Team:
                       'Month': month,
                       'SeasonType': season_type,
                       'SeasonSegment': season_segment,
-                      'LastNGames': last_n_games}
-        elif endpoint in ['teamgamelog', 'teaminfocommon']:
+                      'LastNGames': last_n_games,
+                      'PORound': po_round,
+                      'ShotClockRange': shot_clock_range}
+        elif endpoint in ['teamgamelog', 'team_game_logs','teaminfocommon']:
             params = {'LeagueID': league_id,
                       'TeamID': team_id,
                       'Season': season,
@@ -274,6 +294,10 @@ class Team:
             params = {'LeagueID': league_id,
                       'TeamID': team_id,
                       'PerMode': per_mode,
+                      'SeasonType': season_type}
+        elif endpoint in ['teamestimatedmetrics']:
+            params = {'LeagueID': league_id,
+                      'Season': season,
                       'SeasonType': season_type}
 
         if endpoint in ['teamdashlineups']:

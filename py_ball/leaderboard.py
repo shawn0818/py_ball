@@ -9,7 +9,7 @@ leaderboard.py contains the LeaderBoard class that
 enables API calls for leader board endpoints
 """
 
-from .utils import api_call, parse_api_call
+from .utils import api_call, parse_api_call, get_season_year
 
 class LeaderBoard:
     """ The LeaderBoard class contains all resources needed to use the
@@ -25,6 +25,8 @@ class LeaderBoard:
         not.
         - **leagueleaders**: Longer list of league leaders in a number \
         of statistical categories.
+        - **dunkscoreleaders**: Leaderboard of dunks with overall and component \
+            grades along with corresponding tracking data
 
     The LeaderBoard class has the following required parameters:
 
@@ -140,7 +142,7 @@ class LeaderBoard:
                  league_id='00', stat_category='Points',
                  stat_category_ll='PTS',
                  stat_type='Tracking', stat='PTS',
-                 season='2017-18', season_type='Regular Season',
+                 season=get_season_year("00"), season_type='Regular Season',
                  player_or_team='Player', game_scope='Season',
                  player_scope='All Players', per_mode='PerGame',
                  scope='S'):

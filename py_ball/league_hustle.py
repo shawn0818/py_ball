@@ -1,51 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Oct 11 20:44:34 2018
+Created on Wed Jan 12 20:44:34 2022
 
 @author: patrickmcfarlane
 
-league_dash.py contains the LeagueDashboard class that
-enables API calls for general league performance statitics
-related endpoints
+league_hustle.py contains the LeagueHustle class that
+enables API calls for player and team hustle stats
 """
 
 from .utils import api_call, parse_api_call, get_season_year
 
-class LeagueDash:
-    """ The LeagueDash class contains all resources needed
-    to use the league performance stats related API calls.
+class LeagueHustle:
+    """ The LeagueHustle class contains all resources needed
+    to use the league hustle stats related API calls.
     `stats.nba.com <https://stats.nba.com>`_ has the following
     league performance stats related API endpoints:
 
-        *- **leaguedashlineups**: Traditional and plus/minus statistics \
-        for sets of lineups between sizes 2 to 5 players, inclusive.
-        - **leaguedashplayerbiostats**: Player metadata and performance \
-        statistics for a given season.
-        *- **leaguedashplayerclutch**: Traditional, plus/minus, and rank \
-        statistics for players in a defined clutch period.
-        *- **leaguedashteamclutch**: Traditional, plus/minus, and rank \
-        statistics for teams in a defined clutch period.
-        *- **leaguedashplayershotlocations**: Player shooting-related \
-        statistics by shot distance/type.
-        - **leaguedashplayerptshot**: Shooting-related statistics for \
-        a given season by player.
-        *- **leaguedashplayerstats**: Traditional, plus/minus, and rank \
-        statistics for players.
-        *- **leaguedashteamstats**: Traditional, plus/minus, and rank \
-        statistics for teams.
-        - **leaguedashptdefend**: Defensive statistics for a given season \
-        by player.
-        - **leaguedashptteamdefend**: Defensive statistics for a given \
-        season by team.
-        - **leaguedashteamptshot**: Shooting-related statistics for a \
-        given season by team.
-        - **leaguedashteamshotlocations**: Location-related shooting \
-        statistics for a given season by team
-        - **leagueplayerondetails**: Opponent statistics when a given \
-        player is on the floor
+        *- **leaguehustlestatsplayer**: Player hustle stats.
+        *- **leaguehustlestatsteam**: Team hustle stats.
 
-    The LeagueDash class has the following required parameters:
+    The LeagueHustle class has the following required parameters:
 
         @param **headers** (*dict*): Dictionary of request header information
             required by the API. Specifically, the API requires you to declare
@@ -58,11 +33,6 @@ class LeagueDash:
         @param **league_id** (*str*): LeagueID in the API). String of a \
             two-digit number corresponding to the league. '00' is the NBA, \
             '10' is the WNBA, '01' is the ABA, and '20' is the G-League.
-
-        @param **group_quantity** (*str*): GroupQuantity in the API. String \
-            of an integer indicating the number of players to include a \
-            lineup for the **leaguedashlineups** endpoint. The minimum value \
-            is '2' and the maximum value is '5'.
 
         @param **per_mode** (*str*): PerMode in the API. String indicating \
             the type of rate stats to be returned. Valid values include:
@@ -104,13 +74,6 @@ class LeagueDash:
 
         @param **vs_conference** (*str*): VsConference in the API. String \
             indicating the conference of the opposing team for data to be \
-            returned. An empty string returns data across all conferences. \
-            Valid values include:
-
-                - 'East', 'West', ''
-
-        @param **conference** (*str*): Conference in the API. String \
-            indicating the conference of the team for data to be \
             returned. An empty string returns data across all conferences. \
             Valid values include:
 
@@ -189,24 +152,6 @@ class LeagueDash:
 
                 - 'Pre All-Star', 'Post All-Star', ''
 
-        @param **clutch_time** (*str*): ClutchTime in the API. String that \
-            defines the type of clutch time for the data to be returned. \
-            Valid values include:
-
-                - 'Last 5 Minutes', 'Last 4 Minutes', 'Last 3 Minutes', \
-                'Last 2 Minutes', 'Last 1 Minute', 'Last 30 Seconds', \
-                'Last 10 Seconds'
-
-        @param **ahead_behind** (*str*): AheadBehind in the API. String \
-            indicating the type of score differential for the data to \
-            be returned. Valid values include:
-
-                - 'Ahead or Behind', 'Behind or Tied', 'Ahead or Tied'
-
-        @param **point_diff** (*str*): PointDiff in the API. String of zero \
-            or a positive integer indicating the maximum point \
-            differential for data to be returned. 
-
         @param **game_scope** (*str*): GameScope in the API. String \
             indicating the recency of the data to be returned. An \
             empty string returns data across all past games, subject \
@@ -235,19 +180,6 @@ class LeagueDash:
 
                 - 'Starters', 'Bench', ''
 
-        @param **distance_range** (*str*): DistanceRange in the API. String \
-            indicating the size/type of the distance range bins for data \
-            to be returned. Valid values include:
-
-                - '5ft Range', '8ft Range', 'By Zone'
-
-        @param **defense_category** (*str*): DefenseCategory in the API. \
-            String indicating the shot type of defensive data to be returned. \
-            Valid values include:
-
-                - 'Overall', '3 Pointers', '2 Pointers', 'Less Than 6Ft', \
-                'Less Than 10Ft', 'Greater Than 15Ft'
-
         @param **po_round** (*str*): PORound in the API. 1, 2, 3, or 4 \
             corresponding to the deired playoff round
 
@@ -265,6 +197,18 @@ class LeagueDash:
         @param **two_way** (*str*): TwoWay in the API. 1 to return stats \
             for players on two-way contracts only. 0 to return all players
 
+        @param **draft_pick** (*str*): DraftPick in the API. String of the overall \
+            draft pick number
+
+        @param **draft_year** (*str*): DraftYear in the API. String of the \
+            draft year in YYYY format
+
+        @param **height** (*str*): Height in the API. Height in Feet-Inches \
+            format
+
+        @param **weight** (*str*): Weight in the API. Weight in pounds
+
+
     Attributes:
 
         **api_resp** (*dict*): JSON object of the API response. The API \
@@ -279,36 +223,26 @@ class LeagueDash:
             corresponding data.
     """
 
-    def __init__(self, headers, endpoint='leaguedashlineups',
-                 league_id='00', group_quantity='5',
+    def __init__(self, headers, endpoint='leaguehustlestatsplayer',
+                 league_id='00',
                  per_mode='PerGame', plus_minus='N',
                  rank='Y', pace_adjust='N',
                  measure_type='Base', period='0',
-                 vs_conference='', conference='',
-                 last_n_games='0',
+                 vs_conference='', last_n_games='0',
                  team_id='0', location='', outcome='',
                  date_from='', date_to='', opp_team_id='0',
                  season=get_season_year("00"), vs_division='',
                  game_segment='', month='0',
                  season_type='Regular Season', season_segment='',
-                 clutch_time='Last 5 Minutes',
-                 ahead_behind='Ahead or Behind',
-                 point_diff='0', game_scope='',
+                 game_scope='',
                  player_experience='',
                  player_position='', starters_bench='',
-                 distance_range='By Zone',
-                 defense_category='Overall',
-                 player_or_team="Player",
-                 pt_measure_type='SpeedDistance',
                  po_round='', shot_clock_range='',
-                 two_way='0'):
+                 two_way='0', draft_pick='',
+                 draft_year='', height='', weight=''):
 
         # Controlling the parameters depending on the endpoint
-        if endpoint not in ['leaguedashplayerbiostats',
-                            'leaguedashplayerptshot',
-                            'leaguedashteamptshot',
-                            'leaguedashptdefend',
-                            'leaguedashptteamdefend']:
+        if endpoint in ['leaguehustlestatsplayer', 'leaguehustlestatsteam']:
             params = {'LeagueID': league_id,
                       'PerMode': per_mode,
                       'PlusMinus': plus_minus,
@@ -317,7 +251,6 @@ class LeagueDash:
                       'MeasureType': measure_type,
                       'Period': period,
                       'VsConference': vs_conference,
-                      'Conference': conference,
                       'Location': location,
                       'Outcome': outcome,
                       'DateFrom': date_from,
@@ -337,29 +270,11 @@ class LeagueDash:
                       'StarterBench': starters_bench,
                       'PORound': po_round,
                       'ShotClockRange': shot_clock_range,
-                      'TwoWay': two_way}
-        else:
-            params = {'LeagueID': league_id,
-                      'PerMode': per_mode,
-                      'Season': season,
-                      'SeasonType': season_type}
-
-        if endpoint in ['leaguedashlineups']:
-            params['GroupQuantity'] = group_quantity
-        elif endpoint in ['leaguedashplayerclutch',
-                          'leaguedashteamclutch']:
-            params['ClutchTime'] = clutch_time
-            params['AheadBehind'] = ahead_behind
-            params['PointDiff'] = point_diff
-        elif endpoint in ['leaguedashplayershotlocations',
-                          'leaguedashteamshotlocations']:
-            params['DistanceRange'] = distance_range
-        elif endpoint in ['leaguedashptdefend',
-                          'leaguedashptteamdefend']:
-            params['DefenseCategory'] = defense_category
-        elif endpoint in ["leaguedashptstats"]:
-            params["PlayerOrTeam"] = player_or_team
-            params["PtMeasureType"] = pt_measure_type
+                      'TwoWay': two_way,
+                      'DraftPick': draft_pick,
+                      'DraftYear': draft_year,
+                      'Height': height,
+                      'Weight': weight}
 
 
         self.api_resp = api_call(endpoint=endpoint,
